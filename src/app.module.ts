@@ -1,33 +1,29 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { CategoriesModule } from './categories/categories.module';
-import { ProductsModule } from './products/products.module';
-import { BasketsModule } from './baskets/baskets.module';
-import { OrdersModule } from './orders/orders.module';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { UserModule } from './users/users.module';
+import { User } from './auth/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [],
-      synchronize: true,
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        entities: [User],
+        synchronize: configService.get('NODE_ENV') === 'development',
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
-    UsersModule,
-    CategoriesModule,
-    ProductsModule,
-    BasketsModule,
-    OrdersModule,
+    UserModule,
   ],
 })
 export class AppModule {}
