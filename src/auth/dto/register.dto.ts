@@ -15,4 +15,7 @@ export class RegisterDto {
 
   @IsEnum(Role)
   role: Role;
+
+  @IsString()
+  fullName: string;
 }

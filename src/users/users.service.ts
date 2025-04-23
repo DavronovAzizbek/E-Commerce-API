@@ -16,14 +16,14 @@ export class UserService {
   async findAll(): Promise<Partial<User>[]> {
     return this.userRepository.find({
       where: { role: 'User' },
-      select: ['id', 'email', 'createdAt'],
+      select: ['id', 'email', 'fullName', 'createdAt'],
     });
   }
 
   async findOne(id: number, currentUser: JwtPayload): Promise<Partial<User>> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'createdAt'],
+      select: ['id', 'email', 'fullName', 'createdAt'],
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -37,6 +37,7 @@ export class UserService {
     return {
       id: user.id,
       email: user.email,
+      fullName: user.fullName,
       createdAt: user.createdAt,
     };
   }
@@ -75,6 +76,7 @@ export class UserService {
     return {
       id: updatedUser.id,
       email: updatedUser.email,
+      fullName: updatedUser.fullName,
       createdAt: updatedUser.createdAt,
     };
   }

@@ -17,10 +17,14 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async register(
-    registerDto: RegisterDto,
-  ): Promise<{ id: number; email: string; role: string; createdAt: Date }> {
-    const { email, password, role } = registerDto;
+  async register(registerDto: RegisterDto): Promise<{
+    id: number;
+    fullName: string;
+    email: string;
+    role: string;
+    createdAt: Date;
+  }> {
+    const { fullName, email, password, role } = registerDto;
     const existingUser = await this.userRepository.findOne({
       where: { email },
     });
@@ -30,6 +34,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
+      fullName,
       email,
       password: hashedPassword,
       role: role || 'User',
@@ -39,6 +44,7 @@ export class AuthService {
 
     return {
       id: savedUser.id,
+      fullName: savedUser.fullName,
       email: savedUser.email,
       role: savedUser.role,
       createdAt: savedUser.createdAt,
